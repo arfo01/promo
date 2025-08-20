@@ -93,9 +93,54 @@
   </div>
 
   <script>
-    // O JavaScript continua exatamente o mesmo
     const input = document.getElementById('cameraInput');
     const preview = document.getElementById('preview');
     const locationP = document.getElementById('location');
 
-    input.addEventListener('change', function()
+    input.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = "block";
+        }
+        reader.readAsDataURL(file);
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function(position) {
+              const lat = position.coords.latitude;
+              const lon = position.coords.longitude;
+              locationP.textContent = `Localização: Latitude ${lat}, Longitude ${lon}`;
+            },
+            // FUNÇÃO DE ERRO MELHORADA
+            function(error) {
+              let errorMessage = "Erro ao capturar localização: ";
+              switch(error.code) {
+                case error.PERMISSION_DENIED:
+                  errorMessage += "Permissão negada pelo usuário.";
+                  break;
+                case error.POSITION_UNAVAILABLE:
+                  errorMessage += "Informação de localização indisponível (sem sinal de GPS?).";
+                  break;
+                case error.TIMEOUT:
+                  errorMessage += "A requisição expirou (timeout).";
+                  break;
+                case error.UNKNOWN_ERROR:
+                  errorMessage += "Ocorreu um erro desconhecido.";
+                  break;
+              }
+              // Adiciona uma dica sobre HTTPS
+              if (window.location.protocol !== 'https-:') {
+                  errorMessage += " Dica: A geolocalização geralmente requer uma conexão segura (HTTPS).";
+              }
+              locationP.textContent = errorMessage;
+            }
+          );
+        } else {
+          locationP.textContent = "Geolocalização não suportada neste navegador.";
+        }
+      }
+    });
+  </script>
