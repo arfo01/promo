@@ -2,101 +2,28 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
   <title>Foto com Geolocalização</title>
-
-  <style>
-    /* Define um estilo base para todo o corpo da página */
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #f0f2f5;
-      color: #333;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      box-sizing: border-box; /* Garante que padding não aumente o tamanho total */
-    }
-
-    /* Cria um container principal para centralizar o conteúdo */
-    .container {
-      max-width: 500px; /* Limita a largura máxima em telas grandes */
-      width: 100%;       /* Ocupa 100% da largura em telas menores */
-      background-color: #fff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #1c1e21;
-    }
-
-    /* PASSO 3: Esconde o input de arquivo padrão, que é feio */
-    #cameraInput {
-      display: none;
-    }
-
-    /* PASSO 4: Cria um "botão" personalizado usando a tag <label> */
-    .custom-button {
-      display: inline-block;
-      padding: 12px 25px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
-      background-color: #007bff;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .custom-button:hover {
-      background-color: #0056b3;
-    }
-
-    /* A imagem de pré-visualização */
-    #preview {
-      max-width: 100%; /* Já estava correto, garante que a imagem não ultrapasse o container */
-      height: auto;
-      display: none;
-      margin-top: 20px; /* Adiciona um espaço acima da imagem */
-      border-radius: 8px; /* Bordas arredondadas */
-    }
-
-    /* O parágrafo da localização */
-    #location {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #555;
-      word-wrap: break-word; /* Garante que o texto quebre e não saia da tela */
-    }
-  </style>
 </head>
 <body>
+  <h2>Tirar Foto + Capturar Localização</h2>
+  
+  <!-- Botão para abrir a câmera -->
+  <input type="file" accept="image/*" capture="environment" id="cameraInput">
 
-  <div class="container">
-    <h2>Tirar Foto + Capturar Localização</h2>
-    
-    <input type="file" accept="image/*" capture="environment" id="cameraInput">
-    <label for="cameraInput" class="custom-button">Tirar Foto</label>
+  <br><br>
+  <!-- Exibir foto -->
+  <img id="preview" style="max-width: 100%; height: auto; display: none;" />
 
-    <br><br>
-    <img id="preview" />
-
-    <br>
-    <p id="location">Localização: aguardando...</p>
-  </div>
+  <br>
+  <!-- Exibir localização -->
+  <p id="location">Localização: aguardando...</p>
 
   <script>
     const input = document.getElementById('cameraInput');
     const preview = document.getElementById('preview');
     const locationP = document.getElementById('location');
 
+    // Captura da foto
     input.addEventListener('change', function() {
       const file = this.files[0];
       if (file) {
@@ -107,6 +34,7 @@
         }
         reader.readAsDataURL(file);
 
+        // Quando tirar a foto, capturar localização
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             function(position) {
@@ -114,28 +42,8 @@
               const lon = position.coords.longitude;
               locationP.textContent = `Localização: Latitude ${lat}, Longitude ${lon}`;
             },
-            // FUNÇÃO DE ERRO MELHORADA
             function(error) {
-              let errorMessage = "Erro ao capturar localização: ";
-              switch(error.code) {
-                case error.PERMISSION_DENIED:
-                  errorMessage += "Permissão negada pelo usuário.";
-                  break;
-                case error.POSITION_UNAVAILABLE:
-                  errorMessage += "Informação de localização indisponível (sem sinal de GPS?).";
-                  break;
-                case error.TIMEOUT:
-                  errorMessage += "A requisição expirou (timeout).";
-                  break;
-                case error.UNKNOWN_ERROR:
-                  errorMessage += "Ocorreu um erro desconhecido.";
-                  break;
-              }
-              // Adiciona uma dica sobre HTTPS
-              if (window.location.protocol !== 'https-:') {
-                  errorMessage += " Dica: A geolocalização geralmente requer uma conexão segura (HTTPS).";
-              }
-              locationP.textContent = errorMessage;
+              locationP.textContent = "Erro ao capturar localização.";
             }
           );
         } else {
@@ -144,3 +52,5 @@
       }
     });
   </script>
+</body>
+</html>
