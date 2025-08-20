@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Foto com Geolocalização</title>
+</head>
+<body>
+  <h2>Tirar Foto + Capturar Localização</h2>
+  
+  <!-- Botão para abrir a câmera -->
+  <input type="file" accept="image/*" capture="environment" id="cameraInput">
+
+  <br><br>
+  <!-- Exibir foto -->
+  <img id="preview" style="max-width: 100%; height: auto; display: none;" />
+
+  <br>
+  <!-- Exibir localização -->
+  <p id="location">Localização: aguardando...</p>
+
+  <script>
+    const input = document.getElementById('cameraInput');
+    const preview = document.getElementById('preview');
+    const locationP = document.getElementById('location');
+
+    // Captura da foto
+    input.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = "block";
+        }
+        reader.readAsDataURL(file);
+
+        // Quando tirar a foto, capturar localização
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function(position) {
+              const lat = position.coords.latitude;
+              const lon = position.coords.longitude;
+              locationP.textContent = `Localização: Latitude ${lat}, Longitude ${lon}`;
+            },
+            function(error) {
+              locationP.textContent = "Erro ao capturar localização.";
+            }
+          );
+        } else {
+          locationP.textContent = "Geolocalização não suportada neste navegador.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
